@@ -1,0 +1,23 @@
+# Build results
+bin/
+obj/
+dist/
+build/stage/
+build/*.zip
+*.ico.tmp
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+.vscode/
+
+# OS noise
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local tooling
+.claude/
