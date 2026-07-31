@@ -1,13 +1,18 @@
 # 🎓 .NET Bootcamp — Beginner to Expert
 
-A **native Windows desktop app** (WPF + WebView2, itself written in .NET 10 / C#) containing a complete,
+A **native desktop app** (itself written in .NET 10 / C#) containing a complete,
 offline learning management system for mastering **.NET 10 (LTS)** and **C# 14** — from your first
 `dotnet run` to Native AOT, distributed systems, and a full capstone project.
+
+It ships two native shells around one shared course (`wwwroot/`): **WPF + WebView2 on Windows**,
+and **Photino.NET + webkit2gtk on Linux/macOS**.
 
 Content is grounded in [Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/) — every lesson links
 to the official docs it draws from, and links open in your default browser.
 
-## Installing (recommended)
+> **Platforms:** Windows 10/11 · Linux (GNOME/KDE/any freedesktop desktop) · macOS.
+
+## Installing on Windows (recommended)
 
 Double-click **`build\Install.cmd`**, or run:
 
@@ -33,10 +38,34 @@ produces `build\DotNetBootcamp-1.0.0-win-x64.zip` (app + installer scripts + REA
 Copy it anywhere, unzip, double-click `Install.cmd`. Target machine needs Windows 10/11 —
 no .NET install required.
 
+## Installing on Linux
+
+Requires the **.NET 10 SDK** and **webkit2gtk 4.1** (`webkit2gtk4.1` on Fedora,
+`libwebkit2gtk-4.1-0` on Debian/Ubuntu). Then:
+
+```bash
+./build/install-linux.sh
+```
+
+This publishes a **self-contained** binary to `~/.local/share/dotnet-bootcamp`, adds a launcher
+symlink at `~/.local/bin/dotnet-bootcamp`, and registers a `.desktop` entry + hicolor icons — so
+**.NET Bootcamp** appears in your applications menu and launches like any other Linux app. No root
+needed. Progress is stored locally in the WebKit data store and survives restarts.
+
+**Uninstall:** `./build/uninstall-linux.sh` (keeps your saved progress).
+
+The Linux shell is [Photino.NET](https://www.tryphotino.io/) (`linux/`); it serves the same
+`wwwroot/` course over a fixed loopback origin so `localStorage` progress persists, and sends
+external doc links to your default browser via `xdg-open` — mirroring the Windows shell.
+
 ## Running from source (for development)
 
 ```bash
+# Windows (WPF + WebView2)
 dotnet run --project "D:\Software Development\DotNetBootcamp"
+
+# Linux / macOS (Photino.NET + webkit2gtk)
+dotnet run --project linux/DotNetBootcamp.Desktop.csproj
 ```
 
 Rebuild the installable payload after changing content or code:
@@ -73,8 +102,9 @@ Every lesson has four parts:
 
 ## App features
 
-- Progress tracking (lessons completed, per-task checklists, quiz answers) — stored locally in
-  `%LocalAppData%\DotNetBootcamp`, survives restarts
+- Progress tracking (lessons completed, per-task checklists, quiz answers) — stored locally and
+  survives restarts (`%LocalAppData%\DotNetBootcamp` on Windows; the WebKit data store under
+  `~/.local/share` on Linux)
 - Export / import progress as JSON; reset button
 - Full-text lesson search, dark/light theme, C# syntax highlighting, copy-to-clipboard on all code blocks
 - 100% offline after build — no network needed except the external doc links
@@ -82,26 +112,34 @@ Every lesson has four parts:
 ## Project structure
 
 ```
-D:\Software Development\DotNetBootcamp\
-├── DotNetBootcamp.csproj        WPF app, net10.0-windows, WebView2
+DotNetBootcamp/
+├── DotNetBootcamp.csproj        Windows shell: WPF app, net10.0-windows, WebView2
 ├── MainWindow.xaml(.cs)         Native shell: virtual-host mapping, external-link handling
 ├── App.xaml(.cs)
 ├── app.ico                      Generated app icon (build\make-icon.ps1)
+├── linux/                       Linux/macOS shell (Photino.NET + webkit2gtk)
+│   ├── DotNetBootcamp.Desktop.csproj
+│   ├── Program.cs               Native window; routes external links to xdg-open
+│   ├── LocalContentServer.cs    Serves wwwroot over a fixed loopback origin
+│   └── Assets/icon.png          256px window/app icon (from app.ico)
 ├── build/                       Packaging & install tooling
-│   ├── Install.cmd / .ps1       Per-user install + Desktop/Start Menu shortcuts
-│   ├── Uninstall.cmd / .ps1     Clean removal (keeps progress unless -RemoveData)
+│   ├── Install.cmd / .ps1       Windows per-user install + Desktop/Start Menu shortcuts
+│   ├── Uninstall.cmd / .ps1     Windows clean removal (keeps progress unless -RemoveData)
+│   ├── install-linux.sh         Linux per-user install + .desktop entry & hicolor icons
+│   ├── uninstall-linux.sh       Linux clean removal (keeps progress)
 │   ├── package.ps1              Publishes + zips a distributable installer
 │   └── make-icon.ps1            Regenerates app.ico at 7 resolutions
 ├── dist/                        Self-contained publish output (installer payload)
-└── wwwroot/                     The LMS (served to WebView2 via https://bootcamp.app/)
+└── wwwroot/                     The LMS (shared course served to the webview by both shells)
     ├── index.html
     ├── css/styles.css
     ├── js/app.js                Engine: router, markdown renderer, highlighter, progress store
     └── content/m01..m12.md      Curriculum (plain-text format: @MODULE/@LESSON/@MATERIAL/…)
 ```
 
-The app is intentionally its own teaching artifact: a WPF + WebView2 hybrid — the same architecture as
-Visual Studio Code or Teams — whose source you can read after Module 4, and fully understand after Module 11.
+The app is intentionally its own teaching artifact: a native-shell + webview hybrid (WPF + WebView2 on
+Windows, Photino.NET + webkit2gtk on Linux/macOS) — the same architecture as Visual Studio Code or
+Teams — whose source you can read after Module 4, and fully understand after Module 11.
 
 ## Editing / extending the course
 

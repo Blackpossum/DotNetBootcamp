@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Cross-platform (Linux/macOS) shell for the .NET Bootcamp course.
+    The Windows app is DotNetBootcamp.csproj (WPF + WebView2); this one uses
+    Photino.NET (native WebView via webkit2gtk on Linux) and serves the very
+    same wwwroot/ content, so there is a single source of truth for the course.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DotNetBootcamp</RootNamespace>
+    <AssemblyName>dotnet-bootcamp</AssemblyName>
+    <AssemblyTitle>.NET Bootcamp</AssemblyTitle>
+    <Product>.NET Bootcamp</Product>
+    <Description>Offline bootcamp for .NET 10 and C# 14 — 12 modules, 53 lessons.</Description>
+    <Version>1.0.0</Version>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Photino.NET" Version="4.0.16" />
+  </ItemGroup>
+
+  <!-- Window icon, shipped next to the executable. -->
+  <ItemGroup>
+    <None Include="Assets/icon.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Ship the shared course content next to the executable. -->
+  <ItemGroup>
+    <None Include="../wwwroot/**/*" CopyToOutputDirectory="PreserveNewest">
+      <Link>wwwroot/%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </None>
+  </ItemGroup>
+
+</Project>
